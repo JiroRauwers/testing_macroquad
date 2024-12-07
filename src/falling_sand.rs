@@ -30,26 +30,33 @@ impl Material {
                     cells[y][x] = Material::Air;
                     return;
                 } else {
+                    if y + 2 >= cells.len() {
+                        return;
+                    }
+
                     let rDir: i32 = [-1, 1][rand::gen_range(0, 2)];
 
                     let sub = (x as i32 - rDir) as usize;
                     let sum = (x as i32 + rDir) as usize;
 
-                    // Check if sub is not out of bounds or
-                    if sub < cells[y + 1].len() {
-                        if cells[y + 1][sub] == Material::Air {
-                            cells[y + 1][sub] = Material::Sand;
-                            cells[y][x] = Material::Air;
-                            return;
-                        }
+                    // Check for two cells below being air
+                    if sub < cells[y + 1].len()
+                        && cells[y + 1][sub] == Material::Air
+                        && cells[y + 2][sub] == Material::Air
+                    {
+                        cells[y + 1][sub] = Material::Sand;
+                        cells[y][x] = Material::Air;
+                        return;
                     }
 
-                    if sum < cells[y + 1].len() {
-                        if cells[y + 1][sum] == Material::Air {
-                            cells[y + 1][sum] = Material::Sand;
-                            cells[y][x] = Material::Air;
-                            return;
-                        }
+                    if sum < cells[y + 1].len()
+                        && cells[y + 1][sum] == Material::Air
+                        && cells[y + 2][sum] == Material::Air
+                    // Check for two cells below
+                    {
+                        cells[y + 1][sum] = Material::Sand;
+                        cells[y][x] = Material::Air;
+                        return;
                     }
                 }
             }
@@ -69,6 +76,7 @@ pub async fn main() {
     let mut image = Image::gen_image_color(w as u16, h as u16, WHITE);
 
     let texture: Texture2D = Texture2D::from_image(&image);
+    texture.set_filter(FilterMode::Nearest);
 
     loop {
         // clear_background(BLACK);
